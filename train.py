@@ -10,8 +10,8 @@ learning_rate = 1e-3
 data_size = 784
 batch_size = 64
 max_trains = 60000
-epochs = 10
-save = False
+epochs = 3
+save = True
 
 (x_train_image, y_train_label), (x_test_image, y_test_label) = mnist.load_data()
 x_trains = np.array(x_train_image).reshape(len(x_train_image), 784).astype("float64")/255

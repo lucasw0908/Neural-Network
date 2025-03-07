@@ -1,6 +1,7 @@
-import numpy as np
 import json
 from typing import Callable
+
+import numpy as np
 
 from np_encoder import NumpyArrayEncoder
 
@@ -18,7 +19,7 @@ class NeuralNetwork:
         self.output: list[np.ndarray]  = [np.zeros(layers[0])]
 
         for i in range(1, len(self.layers)):
-            self.W.append(np.random.randn(self.layers[i], self.layers[i-1]) / np.sqrt(layers[i-1]))
+            self.W.append(np.random.randn(self.layers[i], self.layers[i-1]) * np.sqrt(2/layers[i-1]))
             self.B.append(np.zeros(self.layers[i]))
             self.Z.append(np.zeros(self.layers[i]))
             self.output.append(np.zeros(self.layers[i]))
