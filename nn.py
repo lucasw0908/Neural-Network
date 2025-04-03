@@ -52,7 +52,7 @@ class NeuralNetwork:
         return self.output[-1]
     
 
-    def backward(self, y: np.ndarray) -> None:
+    def backward(self, y: np.ndarray) -> np.ndarray:
         x = self.output[-1] - y
 
         for i in range(len(self.layers)-1, 0, -1):
@@ -60,6 +60,8 @@ class NeuralNetwork:
             x = np.dot(self.W[i].T, t)
             self.W[i] -= self.learning_rate * np.outer(t, self.output[i-1])
             self.B[i] -= self.learning_rate * t
+            
+        return x
             
 
     def fit(self, x: np.ndarray, y: np.ndarray) -> np.float64:
