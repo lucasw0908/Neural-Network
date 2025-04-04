@@ -1,34 +1,27 @@
 import cv2
-import numpy as np
 import os
-from PIL import Image
+import numpy as np
 
-from nn import NeuralNetwork
+from cnn import ConvolutionalNeuralNetwork as CNN
 from act import relu, drelu
+from image import show_image
 
 
-train_loss = []
-test_loss = []
-learning_rate = 1e-3
-data_size = 784
+learning_rate = 1e-5
+data_size = (28, 28)
+img_count = 10
 
-nn = NeuralNetwork(layers=[784, 256, 128, 64, 10], activation_function=relu, dactivation_function=drelu, learning_rate=learning_rate)
+nn = CNN(layers=[256, 128, 64, 10], activation_function=relu, dactivation_function=drelu, learning_rate=learning_rate, data_size=data_size, conv_layer=(1, 4))
 nn.load_params()
 
 path = os.path.join(os.path.dirname(__file__), "img")
 
-for i in [1, 2, 3, 4, 5]:
-    if not os.path.exists(f"{path}/{i}.jpg"):
-        im: Image.Image = Image.open(f"{path}/{i}.png")
-        im.convert('RGB').save(f"{path}/{i}.jpg","JPEG")
-
-for i in [1, 2, 3, 4, 5]:
+for i in range(1, img_count+1):
     img = cv2.imread(f"{path}/{i}.jpg", cv2.IMREAD_GRAYSCALE)
-    cv2.imshow(f"image{i}", img)
-    cv2.waitKey(0)
-    img = cv2.resize(img, (28, 28))
+    img = cv2.resize(img, data_size, interpolation=cv2.INTER_AREA)
     img = np.array(img).reshape(784).astype("float64")/255
+    for j in range(len(img)): img[j] = 1 - img[j]
     output = nn.forward(img)
-    print(f"Image: {i}") 
-    print(f"Prediction: {output.argmax()}")
+    print(f"Image {i} - Prediction: {output.argmax()}")
+    show_image(img.reshape(data_size), title=f"Image {i} - Prediction: {output.argmax()}")
     
