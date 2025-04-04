@@ -139,7 +139,7 @@ class NeuralNetwork:
             if save:
                 self.save_params()
                 
-            print(f"Epoch {epoch+1}/{epochs}, Loss: {avg_loss}, Save: {save}", f"Time: {datetime.strftime(datetime.now() - start_time, '%H:%M:%S')}")
+            print(f"Epoch {epoch+1}/{epochs}, Loss: {avg_loss}, Save: {save}", f"Time: {datetime.now() - start_time}")
             
         return train_loss
     
