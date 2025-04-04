@@ -18,6 +18,13 @@ class NeuralNetwork:
         self.W: list[np.ndarray] = [np.zeros(layers[0])]
         self.B: list[np.ndarray] = [np.zeros(layers[0])]
         self.output: list[np.ndarray]  = [np.zeros(layers[0])]
+        
+        self.m: list[np.ndarray] = [0 for _ in range((len(layers)-1)*2)]
+        self.v: list[np.ndarray] = [0 for _ in range((len(layers)-1)*2)]
+        self.beta1 = 0.9
+        self.beta2 = 0.999
+        self.gd_times = 1
+        self.gd_tag = 0
 
         for i in range(1, len(self.layers)):
             self.W.append(np.random.randn(self.layers[i], self.layers[i-1]) * np.sqrt(2/layers[i-1]))
@@ -40,6 +47,19 @@ class NeuralNetwork:
     def cross_entropy(self, y: np.ndarray) -> np.float64:
         return -np.dot(y.T, np.log(self.output[-1] + self.delta))
     
+    
+    def adam(self, grad: np.ndarray, t: int) -> np.ndarray:
+
+        self.m[self.gd_tag] = self.beta1 * self.m[self.gd_tag] + (1 - self.beta1) * grad
+        self.v[self.gd_tag] = self.beta2 * self.v[self.gd_tag] + (1 - self.beta2) * np.square(grad)
+        
+        m_hat = self.m[self.gd_tag] / (1 - np.float_power(self.beta1, t))
+        v_hat = self.v[self.gd_tag] / (1 - np.float_power(self.beta2, t))
+        
+        self.gd_tag += 1
+        
+        return self.learning_rate * m_hat / (np.sqrt(v_hat) + self.delta)
+    
 
     def forward(self, x: np.ndarray) -> np.ndarray:
         assert x.shape[0] == self.layers[0]
@@ -55,13 +75,16 @@ class NeuralNetwork:
 
     def backward(self, y: np.ndarray) -> np.ndarray:
         x = self.output[-1] - y
-
+        
         for i in range(len(self.layers)-1, 0, -1):
             t = x * self.dact(self.Z[i])
             x = np.dot(self.W[i].T, t)
-            self.W[i] -= self.learning_rate * np.outer(t, self.output[i-1])
-            self.B[i] -= self.learning_rate * t
+            self.W[i] -= self.adam(np.outer(t, self.output[i-1]), self.gd_times)
+            self.B[i] -= self.adam(t, self.gd_times)
             
+        self.gd_times += 1
+        self.gd_tag = 0
+        
         return x
             
 
@@ -116,7 +139,7 @@ class NeuralNetwork:
             if save:
                 self.save_params()
                 
-            print(f"Epoch {epoch+1}/{epochs}, Loss: {avg_loss}, Save: {save}, Time: {datetime.now()-start_time}")
+            print(f"Epoch {epoch+1}/{epochs}, Loss: {avg_loss}, Save: {save}", f"Time: {datetime.now() - start_time}")
             
         return train_loss
     
