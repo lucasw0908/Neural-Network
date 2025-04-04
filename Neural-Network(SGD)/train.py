@@ -9,7 +9,7 @@ from act import relu, drelu
 learning_rate = 1e-3
 data_size = 784
 batch_size = 64
-max_trains = 50000
+max_trains = 60000
 epochs = 3
 save = True
 

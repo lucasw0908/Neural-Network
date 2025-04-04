@@ -152,7 +152,7 @@ class ConvolutionalNeuralNetwork(NeuralNetwork):
                 self.kernels[i][j] -= self.learning_rate * t
         
         
-    def save_params(self, filename = "params.json"):
+    def save_params(self, filename = "cnn_params.json"):
         super().save_params(filename)
         
         with open(filename, "r") as f: params = json.load(f)
@@ -160,7 +160,7 @@ class ConvolutionalNeuralNetwork(NeuralNetwork):
         with open(filename, "w") as f: json.dump(params, f, cls=NumpyArrayEncoder)
         
         
-    def load_params(self, filename = "params.json"):
+    def load_params(self, filename = "cnn_params.json"):
         super().load_params(filename)
         
         with open(filename, "r") as f: params = json.load(f)

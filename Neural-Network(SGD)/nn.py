@@ -1,4 +1,5 @@
 import json
+from datetime import datetime
 from typing import Callable
 
 import numpy as np
@@ -98,6 +99,7 @@ class NeuralNetwork:
         for epoch in range(epochs):
             max_trains = min(max_trains, len(x_trains))
             batch_loss = 0
+            start_time = datetime.now()
             
             for i in range(0, max_trains, batch_size):
                 x_batch = x_trains[i:i + batch_size]
@@ -114,7 +116,7 @@ class NeuralNetwork:
             if save:
                 self.save_params()
                 
-            print(f"Epoch {epoch+1}/{epochs}, Loss: {avg_loss}, Save: {save}")
+            print(f"Epoch {epoch+1}/{epochs}, Loss: {avg_loss}, Save: {save}", f"Time: {datetime.strftime(datetime.now() - start_time, '%H:%M:%S')}")
             
         return train_loss
     
