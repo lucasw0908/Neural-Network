@@ -161,9 +161,7 @@ class ConvolutionalNeuralNetwork(NeuralNetwork):
         
         
     def load_params(self, filename = "params.json"):
-        with open(filename, "r") as f: params = json.load(f)
-        
         super().load_params(filename)
+        
+        with open(filename, "r") as f: params = json.load(f)
         self.kernels = params["kernels"]
-        self.X = []
-        self.pooling_maximum = []
