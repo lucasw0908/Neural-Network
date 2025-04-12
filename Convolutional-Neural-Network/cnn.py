@@ -58,6 +58,7 @@ class ConvolutionalNeuralNetwork(NeuralNetwork):
         ds = self.data_size
         for _ in range(self.conv_layer[0]): ds = calc(ds)
 
+        assert ds > (0, 0), "Invalid convolutional layer size"
         return int(ds[0] * ds[1] * self.conv_layer[1])
         
         
@@ -72,6 +73,12 @@ class ConvolutionalNeuralNetwork(NeuralNetwork):
                 output[i, j] = np.sum(x[ix:ix+cx, jx:jx+cy] * kernel)
 
         return output
+    
+    
+    def bconv(self, x: np.ndarray, kernel: np.ndarray) -> np.ndarray:
+        kernel = np.flip(np.flip(kernel, axis=0), axis=1)
+        padded = np.pad(x, ((kernel.shape[0]-1, kernel.shape[0]-1), (kernel.shape[1]-1, kernel.shape[1]-1)), mode="constant")
+        return self.conv(padded, kernel)
     
     
     def dconv(self, x: np.ndarray, dy: np.ndarray) -> np.ndarray:
@@ -102,7 +109,7 @@ class ConvolutionalNeuralNetwork(NeuralNetwork):
         return output
     
     
-    def dmax_pooling(self, x: np.ndarray, pooling_maximum: list[list[tuple]]) -> np.ndarray:
+    def bmax_pooling(self, x: np.ndarray, pooling_maximum: list[list[tuple]]) -> np.ndarray:
         p, px, py = self.pool_kernel_size, self.pool_kernel_size[0], self.pool_kernel_size[1]
         output_shape = [int(((x.shape[i]-1)*self.pool_strides[i])+p[i]) for i in [0, 1]]
         output = np.zeros(output_shape)
@@ -144,12 +151,12 @@ class ConvolutionalNeuralNetwork(NeuralNetwork):
         size = self.conv_data_size / self.conv_layer[1]
         x_conv = x_conv.reshape(self.conv_layer[1], int(np.sqrt(size)), int(np.sqrt(size)))
         
-        for i in range(len(self.kernels)-1, -1, -1):
+        for i in reversed(range(len(self.kernels))):
             x = x_conv[i].copy()
-            for j in range(len(self.kernels[i])-1, -1, -1):
-                x = self.dmax_pooling(x, self.pooling_maximum[i][j])
-                t = self.dconv(self.X[i][j], x)
-                self.kernels[i][j] -= self.learning_rate * t
+            for j in reversed(range(len(self.kernels[i]))):
+                x = self.bmax_pooling(x, self.pooling_maximum[i][j])
+                self.kernels[i][j] -= self.learning_rate * self.dconv(self.X[i][j], x)
+                x = self.bconv(x, self.kernels[i][j])
         
         
     def save_params(self, filename = "cnn_params.json"):

@@ -76,7 +76,7 @@ class NeuralNetwork:
     def backward(self, y: np.ndarray) -> np.ndarray:
         x = self.output[-1] - y
         
-        for i in range(len(self.layers)-1, 0, -1):
+        for i in reversed(range(1, len(self.layers))):
             t = x * self.dact(self.Z[i])
             x = np.dot(self.W[i].T, t)
             self.W[i] -= self.adam(np.outer(t, self.output[i-1]), self.gd_times)
@@ -108,7 +108,16 @@ class NeuralNetwork:
                 accuracy += 1
                 
             test_loss.append(loss)
-            print(f"Test Data: {i+1}/{len(x_tests)}, Loss: {loss}, Correct: {correct}")
+            print(
+                "Test {space}{test}/{tests}, Loss: {loss}, Correct: {correct}"
+                .format(
+                    space=" " * (len(str(len(x_tests))) - len(str(i+1))), 
+                    test=i + 1,
+                    tests=len(x_tests),
+                    loss='%.5f' % loss, 
+                    correct=correct
+                )
+            )
             
         print(f"Average test loss: {sum(test_loss) / len(test_loss)}")
         print(f"Accuracy: {accuracy / len(x_tests)}")
@@ -121,25 +130,50 @@ class NeuralNetwork:
         
         for epoch in range(epochs):
             max_trains = min(max_trains, len(x_trains))
-            batch_loss = 0
+            total_loss = 0
             start_time = datetime.now()
             
             for i in range(0, max_trains, batch_size):
                 x_batch = x_trains[i:i + batch_size]
                 y_batch = y_trains[i:i + batch_size]
+                batch_loss = 0
                 
                 for x_train, y_train in zip(x_batch, y_batch):
                     batch_loss += self.fit(x_train, y_train)
                     
-                print(f"Batch {i//batch_size+1}/{max_trains//batch_size+1}, Loss: {batch_loss/(i+1)}")
+                loss = batch_loss / batch_size
+                total_loss += loss
+                train_loss.append(loss)
+                    
+                batch = i // batch_size + 1
+                batchs = max_trains // batch_size + 1
                 
-            avg_loss = batch_loss / max_trains
-            train_loss.append(avg_loss)
+                print(
+                    "Batch {space}{batch}/{batchs}, Loss: {loss}, Average Loss: {avg_loss}"
+                    .format(
+                        space=" " * (len(str(batchs)) - len(str(batch))), 
+                        batch=batch, 
+                        batchs=batchs, 
+                        loss='%.5f' % loss, 
+                        avg_loss='%.5f' % (total_loss / batch)
+                    )
+                )
             
-            if save:
+            print(
+                "Epoch {space}{epoch}/{epochs}, Loss: {loss}, Average Loss: {avg_loss}, Save: {save}, Time: {time}"
+                .format(
+                    space=" " * (len(str(epochs)) + len(str(batchs)) * 2 - len(str(epoch)) * 3), 
+                    epoch=epoch + 1, 
+                    epochs=epochs, 
+                    loss='%.5f' % (total_loss / batch_size), 
+                    avg_loss='%.5f' % (total_loss / (max_trains // batch_size + 1)), 
+                    save=save, 
+                    time=datetime.now() - start_time
+                )
+            )
+            
+            if save: 
                 self.save_params()
-                
-            print(f"Epoch {epoch+1}/{epochs}, Loss: {avg_loss}, Save: {save}", f"Time: {datetime.now() - start_time}")
             
         return train_loss
     
