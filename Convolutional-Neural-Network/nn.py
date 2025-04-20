@@ -109,16 +109,17 @@ class NeuralNetwork:
                 
             test_loss.append(loss)
             print(
-                "Test {space}{test}/{tests}, Loss: {loss}, Correct: {correct}"
+                "\rTest {space}{test}/{tests}, Loss: {loss}, Correct: {correct}"
                 .format(
                     space=" " * (len(str(len(x_tests))) - len(str(i+1))), 
                     test=i + 1,
                     tests=len(x_tests),
                     loss='%.5f' % loss, 
                     correct=correct
-                )
+                ), end=""
             )
-            
+
+        print(f"\r{' '*100}")
         print(f"Average test loss: {sum(test_loss) / len(test_loss)}")
         print(f"Accuracy: {accuracy / len(x_tests)}")
         
@@ -146,28 +147,26 @@ class NeuralNetwork:
                 train_loss.append(loss)
                     
                 batch = i // batch_size + 1
-                batchs = max_trains // batch_size + 1
+                batches = max_trains // batch_size + 1
                 
                 print(
-                    "Batch {space}{batch}/{batchs}, Loss: {loss}, Average Loss: {avg_loss}"
+                    "\rBatch {space}{batch}/{batchs}, Loss: {loss}, Average Loss: {avg_loss}"
                     .format(
-                        space=" " * (len(str(batchs)) - len(str(batch))), 
+                        space=" " * (len(str(batches)) - len(str(batch))), 
                         batch=batch, 
-                        batchs=batchs, 
+                        batchs=batches, 
                         loss='%.5f' % loss, 
                         avg_loss='%.5f' % (total_loss / batch)
-                    )
+                    ), end=""
                 )
             
             print(
-                "Epoch {space}{epoch}/{epochs}, Loss: {loss}, Average Loss: {avg_loss}, Save: {save}, Time: {time}"
+                "\rEpoch {space}{epoch}/{epochs}, Average Loss: {avg_loss}, Time: {time}"
                 .format(
-                    space=" " * (len(str(epochs)) + len(str(batchs)) * 2 - len(str(epoch)) * 3), 
+                    space=" " * (len(str(epochs)) + len(str(batches)) * 2 - len(str(epoch)) * 3), 
                     epoch=epoch + 1, 
                     epochs=epochs, 
-                    loss='%.5f' % (total_loss / batch_size), 
                     avg_loss='%.5f' % (total_loss / (max_trains // batch_size + 1)), 
-                    save=save, 
                     time=datetime.now() - start_time
                 )
             )
