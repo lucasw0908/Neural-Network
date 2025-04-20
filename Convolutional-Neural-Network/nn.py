@@ -77,7 +77,8 @@ class NeuralNetwork:
         x = self.output[-1] - y
         
         for i in reversed(range(1, len(self.layers))):
-            t = x * self.dact(self.Z[i])
+            if i == len(self.layers)-1: t = x
+            else: t = x * self.dact(self.Z[i])
             x = np.dot(self.W[i].T, t)
             self.W[i] -= self.adam(np.outer(t, self.output[i-1]), self.gd_times)
             self.B[i] -= self.adam(t, self.gd_times)
