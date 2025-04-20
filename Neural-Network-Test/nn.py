@@ -1,4 +1,3 @@
-import random
 import json
 from datetime import datetime
 from typing import Callable
@@ -9,13 +8,11 @@ from np_encoder import NumpyArrayEncoder
 
 
 class NeuralNetwork:
-    def __init__(self, layers: list[int], activation_function: Callable, dactivation_function: Callable=None, learning_rate: float=1e-3, dropout: float=0.5) -> None:
+    def __init__(self, layers: list[int], activation_function: Callable, dactivation_function: Callable=None, learning_rate: float=1e-3) -> None:
         self.layers = layers
         self.learning_rate = learning_rate
         self.act = activation_function
         self.dact = dactivation_function or self.d(activation_function)
-        self.dropout = dropout
-        self.is_training = True
         self.delta = 1e-10
         self.Z: list[np.ndarray] = [np.zeros(layers[0])]
         self.W: list[np.ndarray] = [np.zeros(layers[0])]
@@ -69,11 +66,7 @@ class NeuralNetwork:
         self.output[0] = x
 
         for i in range(1, len(self.layers)):
-            self.Z[i] = (np.dot(self.W[i], self.output[i-1]) + self.B[i])
-            
-            if self.is_training: 
-                self.Z[i] = np.where(np.random.rand(*self.Z[i].shape) < self.dropout, self.Z[i], 0) / (1 - self.dropout)
-                
+            self.Z[i] = np.dot(self.W[i], self.output[i-1]) + self.B[i]
             if i == len(self.layers)-1: self.output[i] = self.softmax(self.Z[i])
             else: self.output[i] = self.act(self.Z[i])
 
@@ -103,7 +96,6 @@ class NeuralNetwork:
     
     
     def predict(self, x_tests: np.ndarray, y_tests: np.ndarray) -> list[np.float64]:
-        self.is_training = False
         test_loss = []
         accuracy = 0
         
@@ -135,7 +127,6 @@ class NeuralNetwork:
     
             
     def train(self, x_trains: np.ndarray, y_trains: np.ndarray, epochs: int, batch_size: int=64, max_trains: int=60000, save: bool=False) -> list[np.float64]:
-        self.is_training = True
         train_loss = []
         
         for epoch in range(epochs):
@@ -172,7 +163,7 @@ class NeuralNetwork:
             print(
                 "\rEpoch {space}{epoch}/{epochs}, Average Loss: {avg_loss}, Time: {time}"
                 .format(
-                    space=" " * (len(str(epochs)) - len(str(epoch+1))),
+                    space=" " * (len(str(epochs)) - len(str(epoch+1))), 
                     epoch=epoch + 1, 
                     epochs=epochs, 
                     avg_loss='%.5f' % (total_loss / (max_trains // batch_size + 1)), 

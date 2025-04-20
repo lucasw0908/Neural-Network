@@ -163,7 +163,7 @@ class NeuralNetwork:
             print(
                 "\rEpoch {space}{epoch}/{epochs}, Average Loss: {avg_loss}, Time: {time}"
                 .format(
-                    space=" " * (len(str(epochs)) + len(str(batches)) * 2 - len(str(epoch)) * 3), 
+                    space=" " * (len(str(epochs)) - len(str(epoch+1))),
                     epoch=epoch + 1, 
                     epochs=epochs, 
                     avg_loss='%.5f' % (total_loss / (max_trains // batch_size + 1)), 
