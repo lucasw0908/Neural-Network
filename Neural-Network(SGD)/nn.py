@@ -1,4 +1,5 @@
 import json
+import os
 from datetime import datetime
 from typing import Callable
 
@@ -156,12 +157,12 @@ class NeuralNetwork:
     
     
     def save_params(self, filename: str="params.json"):
-        with open(filename, "w") as f:
+        with open(os.path.join(os.path.dirname(__file__), filename), "w") as f:
             json.dump({"W": self.W, "B": self.B}, f, indent=4, cls=NumpyArrayEncoder)
             
     
     def load_params(self, filename: str="params.json"):
-        with open(filename, "r") as f:
+        with open(os.path.join(os.path.dirname(__file__), filename), "r") as f:
             params = json.load(f)
             self.W = []
             self.B = []
