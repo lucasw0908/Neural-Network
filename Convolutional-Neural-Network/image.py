@@ -1,10 +1,11 @@
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
+
 
 def show_image(img: np.ndarray, title: str = "Image") -> None:
     """
     Show an image using matplotlib.
-    
+
     Parameters:
         img (np.ndarray): The image to show.
         title (str): The title of the image.

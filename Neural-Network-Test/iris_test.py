@@ -1,13 +1,12 @@
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
+from act import drelu, relu
+from nn import NeuralNetwork
 from sklearn.datasets import load_iris
 from sklearn.model_selection import train_test_split
+from sklearn.utils._bunch import Bunch
 
-from nn import NeuralNetwork
-from act import relu, drelu
-
-
-iris = load_iris()
+iris: Bunch = load_iris()    # type: ignore
 x_data = (iris.data - np.mean(iris.data, axis=0)) / np.std(iris.data, axis=0)
 y_data = np.eye(3)[iris.target]
 
@@ -31,4 +30,3 @@ while True:
     x = x_data[i]
     y = nn.forward(x)
     print(f"Input: {x}, Predicted: {y.argmax()}, Expected: {y_data[i].argmax()}")
-    

@@ -1,8 +1,7 @@
-import numpy as np
 import matplotlib.pyplot as plt
-
-from nn import NeuralNetwork
+import numpy as np
 from act import sigmoid
+from nn import NeuralNetwork
 
 x_train = np.array([[0, 0], [0, 1], [1, 0], [1, 1]])
 y_train = np.array([[1, 0], [0, 1], [0, 1], [1, 0]])
